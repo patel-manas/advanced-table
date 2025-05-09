@@ -9,8 +9,9 @@ export function generateInventoryData(count: number): InventoryItem[] {
       const id = uuidv4();
       const category = categories[Math.floor(Math.random() * categories.length)];
       const name = `${category} Product ${i + 1}`;
-      const price = parseFloat((Math.random() * 1000 + 10).toFixed(2));
-      const quantityInStock = Math.floor(Math.random() * 100);
+      const price = parseFloat((Math.random() * 100 + 10).toFixed(2));
+      const isOutOfStock = Math.random() < 0.1;
+      const quantityInStock = isOutOfStock ? 0 : Math.floor(Math.random() * 100);
   
       items.push({
         id,

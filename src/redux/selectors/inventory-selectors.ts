@@ -7,16 +7,28 @@ const selectInventoryState = (state: RootState) => state.inventory;
 export const selectFilteredSortedProducts = createSelector(
   [selectInventoryState],
   (inventory) => {
-    const { products, filters, sortBy, sortDirection } = inventory;
+    const { products, filters, sortBy, sortDirection, inStockOnly } = inventory;
+    console.log("inStockOnly", inStockOnly)
 
     let result = [...products];
 
     // Filtering
     result = result.filter(product =>
-      Object.entries(filters).every(([key, value]) =>
-        product[key as keyof InventoryItem].toString().toLowerCase().includes(value.toLowerCase())
-      )
+      Object.entries(filters).every(([key, values]) => {
+        const filterMatches = values.some(value =>
+          product[key as keyof InventoryItem].toString().toLowerCase().includes(value.toLowerCase())
+        );
+        return filterMatches;
+      })
     );
+
+    // stock check filter
+    result = result.filter(product => {
+      if (inStockOnly) {
+        return product.quantityInStock > 0;
+      }
+      return true;
+    });
 
     // Sorting
     if (sortBy) {
@@ -53,4 +65,13 @@ export const selectTotalPages = createSelector(
 export const selectCurrentPage = createSelector(
   [selectInventoryState],
   (inventory) => inventory.currentPage
+)
+
+export const selectAllCategories = createSelector(
+  [selectInventoryState],
+  (inventory) => {
+    const categories = new Set<string>();
+    inventory.products.forEach(product => categories.add(product.category));
+    return Array.from(categories);
+  }
 )
